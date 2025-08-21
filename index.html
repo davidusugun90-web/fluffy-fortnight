@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Photo Animator - Create Talking Photos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-magic"></i> AI Photo Animator</h1>
+                <p>Transform your photos into talking, animated videos with AI</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Photo Upload Section -->
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Upload Your Photo</h3>
+                        <p>Drag & drop your image here or click to browse</p>
+                        <input type="file" id="photoInput" accept="image/*" hidden>
+                        <button class="btn-primary" onclick="document.getElementById('photoInput').click()">
+                            Choose Photo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Photo Editor Section -->
+            <section class="editor-section" id="editorSection" style="display: none;">
+                <div class="editor-container">
+                    <!-- Photo Canvas -->
+                    <div class="photo-canvas">
+                        <canvas id="photoCanvas"></canvas>
+                        <div class="canvas-controls">
+                            <button class="btn-secondary" id="resetBtn">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Control Panels -->
+                    <div class="control-panels">
+                        <!-- Background Controls -->
+                        <div class="control-panel">
+                            <h3><i class="fas fa-image"></i> Background</h3>
+                            <div class="control-group">
+                                <button class="btn-control" id="removeBgBtn">
+                                    <i class="fas fa-eraser"></i> Remove Background
+                                </button>
+                                <button class="btn-control" id="replaceBgBtn">
+                                    <i class="fas fa-images"></i> Replace Background
+                                </button>
+                                <input type="file" id="bgInput" accept="image/*" hidden>
+                            </div>
+                        </div>
+
+                        <!-- Photo Editing Controls -->
+                        <div class="control-panel">
+                            <h3><i class="fas fa-edit"></i> Photo Editing</h3>
+                            <div class="control-group">
+                                <div class="slider-control">
+                                    <label>Brightness</label>
+                                    <input type="range" id="brightnessSlider" min="0" max="200" value="100">
+                                </div>
+                                <div class="slider-control">
+                                    <label>Contrast</label>
+                                    <input type="range" id="contrastSlider" min="0" max="200" value="100">
+                                </div>
+                                <div class="slider-control">
+                                    <label>Saturation</label>
+                                    <input type="range" id="saturationSlider" min="0" max="200" value="100">
+                                </div>
+                                <div class="filter-buttons">
+                                    <button class="btn-filter" data-filter="none">Original</button>
+                                    <button class="btn-filter" data-filter="sepia">Sepia</button>
+                                    <button class="btn-filter" data-filter="grayscale">B&W</button>
+                                    <button class="btn-filter" data-filter="vintage">Vintage</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Animation Controls -->
+                        <div class="control-panel">
+                            <h3><i class="fas fa-play-circle"></i> Animation</h3>
+                            <div class="control-group">
+                                <div class="text-input-group">
+                                    <label>Text to Speech</label>
+                                    <textarea id="speechText" placeholder="Enter text to make your photo talk..." rows="4"></textarea>
+                                </div>
+                                <div class="voice-selection">
+                                    <label>Voice Selection</label>
+                                    <select id="voiceSelect">
+                                        <option value="female-1">Sarah (Female, English)</option>
+                                        <option value="female-2">Emma (Female, English)</option>
+                                        <option value="female-3">Sophia (Female, English)</option>
+                                        <option value="male-1">David (Male, English)</option>
+                                        <option value="male-2">James (Male, English)</option>
+                                    </select>
+                                </div>
+                                <div class="language-selection">
+                                    <label>Language</label>
+                                    <select id="languageSelect">
+                                        <option value="en">English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                        <option value="de">German</option>
+                                        <option value="it">Italian</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="ko">Korean</option>
+                                        <option value="zh">Chinese</option>
+                                        <option value="ar">Arabic</option>
+                                        <option value="hi">Hindi</option>
+                                        <option value="bn">Bengali</option>
+                                        <option value="ur">Urdu</option>
+                                        <option value="tr">Turkish</option>
+                                        <option value="pl">Polish</option>
+                                        <option value="nl">Dutch</option>
+                                        <option value="sv">Swedish</option>
+                                        <option value="da">Danish</option>
+                                        <option value="no">Norwegian</option>
+                                        <option value="fi">Finnish</option>
+                                        <option value="el">Greek</option>
+                                        <option value="he">Hebrew</option>
+                                        <option value="th">Thai</option>
+                                        <option value="vi">Vietnamese</option>
+                                        <option value="id">Indonesian</option>
+                                        <option value="ms">Malay</option>
+                                        <option value="tl">Filipino</option>
+                                        <option value="sw">Swahili</option>
+                                        <option value="am">Amharic</option>
+                                        <option value="zu">Zulu</option>
+                                        <option value="xh">Xhosa</option>
+                                        <option value="af">Afrikaans</option>
+                                        <option value="sq">Albanian</option>
+                                        <option value="az">Azerbaijani</option>
+                                        <option value="eu">Basque</option>
+                                        <option value="be">Belarusian</option>
+                                        <option value="bg">Bulgarian</option>
+                                        <option value="ca">Catalan</option>
+                                        <option value="hr">Croatian</option>
+                                        <option value="cs">Czech</option>
+                                        <option value="et">Estonian</option>
+                                        <option value="ka">Georgian</option>
+                                    </select>
+                                </div>
+                                <div class="animation-settings">
+                                    <label>Animation Style</label>
+                                    <div class="animation-options">
+                                        <button class="btn-animation active" data-style="realistic">Realistic</button>
+                                        <button class="btn-animation" data-style="expressive">Expressive</button>
+                                        <button class="btn-animation" data-style="subtle">Subtle</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Settings -->
+                        <div class="control-panel">
+                            <h3><i class="fas fa-video"></i> Video Settings</h3>
+                            <div class="control-group">
+                                <div class="video-quality">
+                                    <label>Quality</label>
+                                    <select id="qualitySelect">
+                                        <option value="4k">4K (3840x2160)</option>
+                                        <option value="1080p">1080p (1920x1080)</option>
+                                        <option value="720p">720p (1280x720)</option>
+                                    </select>
+                                </div>
+                                <div class="video-duration">
+                                    <label>Max Duration</label>
+                                    <select id="durationSelect">
+                                        <option value="180">3 minutes</option>
+                                        <option value="300">5 minutes</option>
+                                    </select>
+                                </div>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="enablePhysics" checked>
+                                        Enable Real Physics
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" id="enableMovement" checked>
+                                        Enable Body Movement
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" id="colorAccuracy" checked>
+                                        4K Color Accuracy
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="generate-section">
+                    <button class="btn-generate" id="generateBtn">
+                        <i class="fas fa-magic"></i>
+                        Generate Talking Video
+                    </button>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-container">
+                    <h3>Generating Your Talking Photo...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-steps">
+                        <div class="step active" id="step1">
+                            <i class="fas fa-image"></i>
+                            <span>Processing Photo</span>
+                        </div>
+                        <div class="step" id="step2">
+                            <i class="fas fa-microphone"></i>
+                            <span>Generating Speech</span>
+                        </div>
+                        <div class="step" id="step3">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Lip Syncing</span>
+                        </div>
+                        <div class="step" id="step4">
+                            <i class="fas fa-running"></i>
+                            <span>Adding Movement</span>
+                        </div>
+                        <div class="step" id="step5">
+                            <i class="fas fa-video"></i>
+                            <span>Rendering Video</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Result Section -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <div class="result-container">
+                    <h3>Your Talking Photo is Ready!</h3>
+                    <div class="video-container">
+                        <video id="resultVideo" controls>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn-primary" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download Video
+                        </button>
+                        <button class="btn-secondary" id="shareBtn">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+                        <button class="btn-secondary" id="newProjectBtn">
+                            <i class="fas fa-plus"></i> New Project
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 AI Photo Animator. Powered by advanced AI technology.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.0.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
