@@ -13,7 +13,9 @@ require('dotenv').config();
 // Import custom modules
 const photoProcessor = require('./services/photoProcessor');
 const textToSpeech = require('./services/textToSpeech');
+const enhancedTextToSpeech = require('./services/enhancedTextToSpeech');
 const backgroundRemover = require('./services/backgroundRemover');
+const enhancedBackgroundRemover = require('./services/enhancedBackgroundRemover');
 const lipSyncEngine = require('./services/lipSyncEngine');
 const animationEngine = require('./services/animationEngine');
 const translationService = require('./services/translationService');
@@ -129,24 +131,33 @@ app.post('/api/upload', upload.single('photo'), async (req, res) => {
   }
 });
 
-// Background removal/replacement
+// Background removal/replacement (Enhanced with AI)
 app.post('/api/background/remove', async (req, res) => {
   try {
-    const { sessionId, photoPath } = req.body;
+    const { sessionId, photoPath, useAI = true } = req.body;
 
     io.to(sessionId).emit('processing-update', {
       stage: 'background-removal',
       progress: 0,
-      message: 'Starting background removal...'
+      message: 'Starting AI background removal...'
     });
 
-    const result = await backgroundRemover.removeBackground(photoPath, (progress) => {
-      io.to(sessionId).emit('processing-update', {
-        stage: 'background-removal',
-        progress,
-        message: 'Removing background...'
+    // Use enhanced AI background removal if available
+    const result = useAI ? 
+      await enhancedBackgroundRemover.removeBackgroundAI(photoPath, (progress, message) => {
+        io.to(sessionId).emit('processing-update', {
+          stage: 'background-removal',
+          progress,
+          message: message || 'Removing background with AI...'
+        });
+      }) :
+      await backgroundRemover.removeBackground(photoPath, (progress) => {
+        io.to(sessionId).emit('processing-update', {
+          stage: 'background-removal',
+          progress,
+          message: 'Removing background...'
+        });
       });
-    });
 
     res.json({
       success: true,
@@ -160,13 +171,26 @@ app.post('/api/background/remove', async (req, res) => {
 
 app.post('/api/background/replace', async (req, res) => {
   try {
-    const { sessionId, photoPath, backgroundType, customBackground } = req.body;
+    const { sessionId, photoPath, backgroundType, customBackground, useAI = true } = req.body;
 
-    const result = await backgroundRemover.replaceBackground(
-      photoPath,
-      backgroundType,
-      customBackground
-    );
+    const result = useAI ?
+      await enhancedBackgroundRemover.generateAIBackground(
+        backgroundType,
+        customBackground,
+        { width: 1920, height: 1080 }, // Default dimensions
+        (progress, message) => {
+          io.to(sessionId).emit('processing-update', {
+            stage: 'background-replacement',
+            progress,
+            message: message || 'Generating AI background...'
+          });
+        }
+      ) :
+      await backgroundRemover.replaceBackground(
+        photoPath,
+        backgroundType,
+        customBackground
+      );
 
     res.json({
       success: true,
@@ -178,10 +202,116 @@ app.post('/api/background/replace', async (req, res) => {
   }
 });
 
-// Text-to-Speech with voice options
+// Enhanced image processing endpoints
+app.post('/api/image/enhance', async (req, res) => {
+  try {
+    const { sessionId, imagePath, enhancementType = 'auto' } = req.body;
+
+    io.to(sessionId).emit('processing-update', {
+      stage: 'image-enhancement',
+      progress: 0,
+      message: 'Starting image enhancement...'
+    });
+
+    const result = await enhancedBackgroundRemover.enhanceImage(imagePath, enhancementType);
+
+    res.json({
+      success: true,
+      enhancedImage: result
+    });
+  } catch (error) {
+    console.error('Image enhancement error:', error);
+    res.status(500).json({ error: 'Failed to enhance image' });
+  }
+});
+
+app.post('/api/image/upscale', async (req, res) => {
+  try {
+    const { sessionId, imagePath, factor = 2 } = req.body;
+
+    io.to(sessionId).emit('processing-update', {
+      stage: 'image-upscaling',
+      progress: 0,
+      message: 'Starting image upscaling...'
+    });
+
+    const result = await enhancedBackgroundRemover.upscaleImage(imagePath, factor);
+
+    res.json({
+      success: true,
+      upscaledImage: result
+    });
+  } catch (error) {
+    console.error('Image upscaling error:', error);
+    res.status(500).json({ error: 'Failed to upscale image' });
+  }
+});
+
+// Voice cloning endpoint (ElevenLabs)
+app.post('/api/tts/clone-voice', async (req, res) => {
+  try {
+    const { audioSample, voiceName } = req.body;
+
+    if (!process.env.ELEVENLABS_API_KEY) {
+      return res.status(400).json({ error: 'Voice cloning requires ElevenLabs API key' });
+    }
+
+    const result = await enhancedTextToSpeech.cloneVoice(audioSample, voiceName);
+
+    res.json({
+      success: true,
+      clonedVoice: result
+    });
+  } catch (error) {
+    console.error('Voice cloning error:', error);
+    res.status(500).json({ error: 'Failed to clone voice' });
+  }
+});
+
+// API usage statistics
+app.get('/api/usage/stats', async (req, res) => {
+  try {
+    const stats = {
+      elevenlabs: null,
+      stabilityAI: null
+    };
+
+    // Get ElevenLabs usage if available
+    if (process.env.ELEVENLABS_API_KEY) {
+      try {
+        stats.elevenlabs = await enhancedTextToSpeech.getVoiceUsage();
+      } catch (error) {
+        console.warn('Could not fetch ElevenLabs usage:', error.message);
+      }
+    }
+
+    // Add Stability AI usage if available
+    if (process.env.STABILITY_AI_API_KEY) {
+      stats.stabilityAI = {
+        available: true,
+        service: 'stability-ai'
+      };
+    }
+
+    res.json({
+      success: true,
+      usage: stats,
+      servicesAvailable: {
+        elevenlabs: !!process.env.ELEVENLABS_API_KEY,
+        stabilityAI: !!process.env.STABILITY_AI_API_KEY,
+        additionalAPI: !!process.env.ADDITIONAL_API_KEY
+      }
+    });
+  } catch (error) {
+    console.error('Usage stats error:', error);
+    res.status(500).json({ error: 'Failed to get usage statistics' });
+  }
+});
+
+// Text-to-Speech with enhanced voice options
 app.post('/api/tts/generate', async (req, res) => {
   try {
-    const { text, voice, language, sessionId } = req.body;
+    const { text, voice, language, emotion, usePremium = true, sessionId } = req.body;
 
     if (!text || !voice) {
       return res.status(400).json({ error: 'Text and voice are required' });
@@ -190,22 +320,37 @@ app.post('/api/tts/generate', async (req, res) => {
     io.to(sessionId).emit('processing-update', {
       stage: 'tts-generation',
       progress: 0,
-      message: 'Generating speech...'
+      message: 'Generating premium speech...'
     });
 
-    const audioResult = await textToSpeech.generateSpeech(text, voice, language, (progress) => {
-      io.to(sessionId).emit('processing-update', {
-        stage: 'tts-generation',
-        progress,
-        message: 'Synthesizing voice...'
+    // Use enhanced TTS with ElevenLabs if premium is requested
+    const audioResult = usePremium ? 
+      await enhancedTextToSpeech.generateEnhancedSpeech(text, voice, { 
+        language, 
+        emotion 
+      }, (progress, message) => {
+        io.to(sessionId).emit('processing-update', {
+          stage: 'tts-generation',
+          progress,
+          message: message || 'Synthesizing premium voice...'
+        });
+      }) :
+      await textToSpeech.generateSpeech(text, voice, language, (progress) => {
+        io.to(sessionId).emit('processing-update', {
+          stage: 'tts-generation',
+          progress,
+          message: 'Synthesizing voice...'
+        });
       });
-    });
 
     res.json({
       success: true,
       audioFile: audioResult.audioFile,
       duration: audioResult.duration,
-      phonemes: audioResult.phonemes
+      phonemes: audioResult.phonemes,
+      service: audioResult.service || 'standard',
+      quality: audioResult.quality || 'standard',
+      emotion: audioResult.emotion || 'neutral'
     });
   } catch (error) {
     console.error('TTS error:', error);
@@ -213,11 +358,25 @@ app.post('/api/tts/generate', async (req, res) => {
   }
 });
 
-// Get available voices
+// Get available voices (Enhanced with premium options)
 app.get('/api/tts/voices', async (req, res) => {
   try {
-    const voices = await textToSpeech.getAvailableVoices();
-    res.json({ success: true, voices });
+    const { includePremium = true } = req.query;
+    
+    let voices = await textToSpeech.getAvailableVoices();
+    
+    // Add enhanced voices if premium is requested
+    if (includePremium && process.env.ELEVENLABS_API_KEY) {
+      const enhancedVoices = await enhancedTextToSpeech.getEnhancedVoices();
+      voices = [...voices, ...enhancedVoices];
+    }
+    
+    res.json({ 
+      success: true, 
+      voices,
+      premiumAvailable: !!process.env.ELEVENLABS_API_KEY,
+      totalVoices: voices.length
+    });
   } catch (error) {
     console.error('Get voices error:', error);
     res.status(500).json({ error: 'Failed to get available voices' });
