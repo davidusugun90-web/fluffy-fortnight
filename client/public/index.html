@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="description" content="Transform your photos into stunning talking videos with AI-powered lip sync, realistic movements, and premium voice synthesis." />
+    <meta name="keywords" content="AI, photo animation, text-to-speech, lip sync, video generation, 4K, voice synthesis" />
+    <meta name="author" content="AI Photo Animator Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aiphotoanimator.com/" />
+    <meta property="og:title" content="AI Photo Animator - Transform Photos into Talking Videos" />
+    <meta property="og:description" content="Create stunning talking videos from photos with AI-powered lip sync, realistic movements, and premium voice synthesis. Support for 40+ languages and 4K output." />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://aiphotoanimator.com/" />
+    <meta property="twitter:title" content="AI Photo Animator - Transform Photos into Talking Videos" />
+    <meta property="twitter:description" content="Create stunning talking videos from photos with AI-powered lip sync, realistic movements, and premium voice synthesis." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/twitter-image.jpg" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.elevenlabs.io">
+    <link rel="preconnect" href="https://api.stability.ai">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style">
+    
+    <title>AI Photo Animator - Transform Photos into Talking Videos</title>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Photo Animator",
+      "description": "Transform your photos into stunning talking videos with AI-powered lip sync, realistic movements, and premium voice synthesis.",
+      "url": "https://aiphotoanimator.com",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "4K Video Output",
+        "40+ Language Support",
+        "Premium Voice Synthesis",
+        "AI-Powered Lip Sync",
+        "Realistic Body Animation",
+        "Background Removal & Replacement"
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #0f0f23;
+        color: #ffffff;
+        font-family: Inter, sans-serif;
+        text-align: center;
+        padding: 20px;
+      ">
+        <div>
+          <h1>JavaScript Required</h1>
+          <p>AI Photo Animator requires JavaScript to run. Please enable JavaScript in your browser and reload the page.</p>
+          <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
+            This application uses modern web technologies including React, WebGL, and Web Audio API to provide the best experience.
+          </p>
+        </div>
+      </div>
+    </noscript>
+    
+    <!-- Loading screen while React loads -->
+    <div id="initial-loader" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    ">
+      <div style="text-align: center; color: white;">
+        <div style="
+          width: 60px;
+          height: 60px;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top: 3px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        "></div>
+        <h2 style="margin: 0; font-weight: 600;">AI Photo Animator</h2>
+        <p style="margin: 10px 0 0; opacity: 0.8;">Loading amazing AI features...</p>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    
+    <!-- Remove initial loader when React loads -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loader = document.getElementById('initial-loader');
+          if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(function() {
+              loader.remove();
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
